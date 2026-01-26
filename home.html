@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="home.css">
+</head>
+
+<body>
+    <h1>Find Your Favourate Book</h1>
+    <div class="profile" id="pro">
+        <img src="user.png" alt="">
+    </div>
+    <div class="box1">
+        <img src="home.png" id="image">
+        <input type="text" id="search" placeholder="Search Your Book">
+        <div class="box2">
+            <h1>Add Filters</h1>
+            <label for=""><input type="checkbox" id="price1" value="low-high" name="price11">low-high</label>
+            <label><input type="checkbox" id="price2" value="high-low" name="price12">high-low</label>
+            <label>Price:-<span id="price">10000</span>
+                <input type="range" min="500" max="10000" step="100" id="Range" value="10000"
+                    oninput="document.getElementById('price').innerText=this.value"></label>
+            <label><input type="checkbox" id="avai" value="Available" name="availa">AvailableBooks</label>
+
+        </div>
+    </div>
+    <div id="container"></div>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="/connectSocket.js"></script>
+    <script>
+         const container = document.getElementById("container");
+         connectSocket(book=>{
+            handleBookMessage(book)
+          })
+       async function handleBookMessage(msg){
+            const action=msg.action;
+            const book=msg.book;
+             let box=null;
+            let availEl=null; 
+            if(action!=="NewBook"){
+            box=document.querySelector(`.box[bookid="${book.id}"]`);
+             availEl=box.querySelector(".avail");
+            }
+            if(action==="Rent"){
+               availEl.innerText="Taken For Rent";
+            }
+             else if(action==="Bought"){
+                 availEl.innerText="Already Bought"
+                }
+            else if(action==="Returned"){
+              availEl.innerText="Available"
+            //  fetchBooks(data)
+            }
+            else if(action==="NewBook"){
+              let data=await fetchData();
+            //   data=[data];
+              console.log(data)
+                fetchBooks(data);
+            }
+            else
+               deleteBook(book)
+            }
+       function deleteBook(item){
+                const box=document.querySelector(`.box[bookid="${item.id}"]`);
+                box.remove()
+            }
+        let data2 = [];
+        document.getElementById("image").addEventListener("click", () => {
+            window.location.href = "welcome.html"
+        })
+        document.getElementById("search").addEventListener('keyup', async function (event) {
+            const data = event.target.value;
+            const response = await fetch(`http://localhost:8080/SearchBooks?name=${data}`);
+            const data1 = await response.json();
+            container.innerHTML = ""
+            data2 = data1;
+            applyfilter();
+        })
+        let cust_id;
+        let custdata;
+        
+        const token = localStorage.getItem("token");
+        const username = localStorage.getItem("name");
+        async function name() {
+            const res = await fetch(`http://localhost:8080/CustomerDetails?name=${username}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
+            custdata = await res.json();
+            const pro = document.getElementById("userpro");
+            console.log(custdata)
+            cust_id = custdata.id;
+            const data1 = await fetchData();
+            fetchBooks(data1);
+        }
+        name();
+        async function fetchBooks(data) {
+            container.innerHTML = "";
+            data.forEach(item => {
+                const avail = item.Rented ? "Taken For Rent" : item.bought ? "Already Bought" : "Available";
+                const price = "Price:- " + item.price;
+                const bookname = "BookName:- " + item.bookName;
+                const author = "AuthorName:- " + item.bookAuthorName;
+                container.innerHTML +=
+                    `<div class="box" bookid="${item.id}">
+                    <p>${bookname}</p>
+                    <p>${author}</p>
+                    <p>${price}</p>
+                     <p class="avail">${avail}</p>
+                     <div class="button">
+                        <button>Buy</button>
+                        <button>Rent</button>
+                        </div>
+                    </div> `
+            });
+        }
+        document.getElementById("container").addEventListener("click", async (e) => {
+            if (e.target.tagName !== "BUTTON")
+                return;
+            const box = e.target.closest(".box");
+            const id = box.getAttribute("bookid");
+            const action = e.target.textContent;
+            const url = action === "Buy" ?
+                `http://localhost:8080/PurchaseBook?id=${id}&cust_id=${cust_id}`
+                : `http://localhost:8080/RentBook?id=${id}&cust_id=${cust_id}`
+                const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
+            const data = await response.json();
+            if (data)
+                alert(`Thank you for ${action}ing book.Come to library`);
+            else
+                alert("Book has been rented");
+        })
+        async function fetchData() {
+            const response = await fetch("http://localhost:8080/AvailableBooks")
+            const data = await response.json();
+            return data;
+        }
+        const cd1 = document.getElementById("price1");
+        const cd2 = document.getElementById("price2");
+        const cd4 = document.getElementById("avai");
+        const range = document.getElementById("Range");
+        async function applyfilter() {
+            let sorted = data2;
+            if (sorted.length === 0) {
+                sorted = await fetchData();
+            }
+            const max = parseInt(range.value);
+            sorted = sorted.filter(b => b.price <= max);
+            if (cd1.checked) {
+                sorted = [...sorted].sort((a, b) => a.price - b.price)
+            }
+            if (cd2.checked) {
+                sorted = [...sorted].sort((a, b) => b.price - a.price)
+            }
+            if (cd4.checked) {
+                sorted = [...sorted].sort((a, b) => (a.Rented - b.Rented))
+                sorted = [...sorted].sort((a, b) => (a.bought - b.bought))
+            }
+            fetchBooks(sorted);
+        }
+        cd1.addEventListener("change", applyfilter);
+        cd2.addEventListener("change", applyfilter);
+        range.addEventListener("input", applyfilter);
+        cd4.addEventListener("change", applyfilter);
+        document.getElementById("pro").addEventListener("click", () => {
+            window.location.href = "profile.html";
+        })
+        //  window.onload=connectWebScoket
+    </script>
+</body>
+
+</html>

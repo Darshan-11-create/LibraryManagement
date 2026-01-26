@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Book</title>
+  <link rel="stylesheet" href="SearchBook.css">
+</head>
+
+<body>
+  <h1>Find your Book</h1>
+  <input type="text" placeholder="Enter your book name" name="bookName" id="search">
+  <p id="container"></p>
+     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    
+    <script src="/connectSocket.js"></script>
+  <script>
+     connectSocket(book=>{
+            handleBookMessage(book)
+          })
+        function handleBookMessage(msg){
+            const action=msg.action;
+            const book=msg.book;
+            let box=null;
+            let availEl=null;
+            if(action!=="NewBook"){
+             box=document.querySelector(`.box[bookid="${book.id}"]`);
+             availEl=box.querySelector(".avail");
+            }
+            if(action==="Rent"){
+               availEl.innerText="Taken For Rent";
+            }
+             else if(action==="Bought"){
+                 availEl.innerText="Already Bought"
+        
+                }
+             else if(action==="Returned")
+               availEl.innerText='Available'
+             else if(action==="NewBook"){
+                fetchBooks();
+             }
+             else
+                deleteBook(book)
+            }
+            function deleteBook(item){
+                const box=document.querySelector(`.box[bookid="${item.id}"]`);
+                box.remove()
+            }
+   
+    const container = document.getElementById('container');
+     fetchBooks();
+    async function fetchBooks() {
+      container.innerHTML=""
+      const response = await fetch("http://localhost:8080/AvailableBooks");
+      const data = await response.json();
+
+      container.innerHTML = ""
+      data.forEach(item => {
+        const st = item.Rented ? "Not Available" : item.bought ? "Not Available" : "Available";
+        const bookname = "Book Name:-  " + item.bookName;
+        const author = "Author:-  " + item.bookAuthorName;
+        const price = "cost:- " + item.price;
+        container.innerHTML +=
+          `
+               <div class="box" bookid="${item.id}">
+                  <p>${bookname}</p>
+                  <p>${author}</p>
+                  <p>${price}</p>
+                  <p class="avail">${st}</p>
+                   <div class="button">
+                    <button>Buy</button>
+                    <button>Rent</button> 
+                  </div>
+                </div>
+               `
+      });
+    }
+    document.getElementById("search").addEventListener('keyup', async function (event) {
+      const data = event.target.value;
+      const response = await fetch(`http://localhost:8080/SearchBooks?name=${data}`);
+      const data1 = await response.json();
+      container.innerHTML = ""
+      if (data === "") {
+        fetchBooks();
+      }
+      data1.forEach(item => {
+        const st = item.Rented ? "Not Available" : "Available";
+        container.innerHTML +=
+          `
+               <div class="box" bookid="${item.id}">
+                  <p>${item.bookName}</p>
+                  <p>${item.bookAuthorName}</p>
+                  <p>${item.price}</p>
+                  <p class="valid">${st}</p>
+                  <div class="button">
+                    <button>Buy</button>
+                    <button>Rent</button> 
+                  </div>
+                </div>
+               `
+      })
+    })
+    const token = localStorage.getItem("token")
+    container.addEventListener("click", async (e) => {
+      window.location.href = "login.html"
+    })
+  </script>
+</body>
+
+</html>

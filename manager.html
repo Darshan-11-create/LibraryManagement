@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager</title>
+    <link rel="stylesheet" href="manager.css">
+</head>
+
+<body>
+    <h1>Welcome Manager</h1>
+    <h2>You can update your library status here</h2>
+    <div id="manage">
+        <p id="customer" class="main">Customer</p>
+        <p id="books" class="main">Books</p>
+        <p id="add" class="main">Add</p>
+        <p id="rentedbooks" class="main">Rented Books</p>
+        <p id="boughtbooks" class="main">Bought Books</p>
+    </div>
+    <div id="search"></div>
+    <div id="output">
+
+    </div>
+    <div id="data"></div>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <script src="/connectSocket.js"></script>
+    <script>
+         const customer = document.getElementById("output");
+        let data1;
+        const d = document.getElementById("data")
+         connectSocket(book=>{
+            handleBookMessage(book)
+          })
+        async function handleBookMessage(msg){
+            const action=msg.action;
+            let book=msg.book;
+            let box=null;
+            let availEl=null; 
+            if(action!=="NewBook"){
+             box=document.querySelector(`.book[bookid="${book.id}"]`);
+            book=[book];
+            if(box)
+             availEl=box.querySelector(".buttons .valid");
+             }
+            if(action==="Rent"){
+               availEl.innerText="Taken For Rent";
+                 const res=await fetch(`http://localhost:8080/manager/AllBooks`);
+                 book=await res.json();
+                 frontEndHandler(book);
+            }
+             else if(action==="Bought"){
+                 availEl.innerText="Already Bought"
+                  const res=await fetch(`http://localhost:8080/manager/AllBooks`);
+                 book=await res.json();
+                 frontEndHandler(book);
+                }
+              else if(action==="Returned")
+                  availEl.innerText="Available"
+              else if(action==="NewBook"){
+                const res=await fetch(`http://localhost:8080/manager/AllBooks`);
+                let data=await res.json();
+                frontEndHandler(data)
+              }
+              else
+                 deleteBook(book)
+            }
+            async function deleteBook(item){
+                const response = await fetch("http://localhost:8080/manager/AllBooks");
+            data1 = await response.json();
+            frontEndHandler(data1)
+            }
+        connectCustomerSocket(customer=>{
+            handleCustomer(customer)
+        })
+        function handleCustomer(msg){
+            const action=msg.action;
+            const cust=msg.customer;
+            if(action==="Remove"){
+                   const box=document.querySelector(`.customers[custid="${cust.id}"]`);
+                   box.remove();
+                  name();
+            }
+        }
+        async function name() {
+            const response = await fetch("http://localhost:8080/manager/AllCustomers");
+            data1 = await response.json();
+            console.log(data1);
+            customer.innerHTML = ""
+            document.getElementById("output").innerHTML = ""
+            document.getElementById("search").innerHTML =
+                `
+            <input type="number" id="searchid" placeholder="Search Customer By Id">
+            <input type="text" id="searchname" placeholder="Search Customer By Name">
+            `
+            document.getElementById("searchid").addEventListener("keyup", async (e) => {
+                console.log(e.target.value)
+                if (e.target.value === "")
+                    frontEndHandler(data1)
+                else {
+                    const url = `http://localhost:8080/manager/SearchCustomerById?id=${e.target.value}`
+                    const res = await fetch(url);
+                    if (res.ok) {
+                        let data = await res.text();
+                        if (!data) { return }
+                        data = JSON.parse(data);
+                        data = [data]
+                        frontEndHandler1(data)
+                    }
+
+                }
+            })
+            document.getElementById("searchname").addEventListener("keyup", async (e) => {
+                console.log(e.target.value)
+
+                if (e.target.value === "")
+                    frontEndHandler1(data1)
+                else {
+                    const url = `http://localhost:8080/manager/SearchCustomer?name=${e.target.value}`
+                    const res = await fetch(url);
+                    let data = await res.json();
+                    frontEndHandler(data)
+                }
+            })
+            d.innerHTML = ""
+            frontEndHandler1(data1)
+
+        }
+        name();
+        document.getElementById("customer").addEventListener("click", () => {
+
+            name();
+        });
+        function frontEndHandler1(data1) {
+            customer.innerHTML = "";
+            data1.forEach(item => {
+                customer.innerHTML += `
+                
+                <div class="customers" custid="${item.id}">
+                     <p>Id:-${item.id}</p>
+                     <p>Name:-${item.name}</p>
+                     <p>Phno:-${item.phno}</p>
+                     <p>Email:-${item.email}<p>
+                     <div class="buttons">
+                        <button>Remove</button>
+                        <button>CheckDetails</button>
+                    </div>
+                    </div>
+                `
+            });
+
+        }
+        function frontEndHandler(data1) {
+            customer.innerHTML = ""
+            d.innerHTML=""
+            data1.forEach(item => {
+                let bought = item.bought ? "Already Bought" : "Available"
+                let avail = item.Rented ? "Taken For Rent" : "Available"
+                customer.innerHTML += `
+                <div class="book" bookid="${item.id}">
+                     <p>Id:-${item.id}</p>
+                     <p>BookName:-${item.bookName}</p>
+                     <p>AuthorName:-${item.bookAuthorName}</p>
+                     <p>Price:-${item.price}<p>
+                     <div class="buttons">
+                        <p>${bought}</p>
+                        <p class="valid">${avail}</p>
+                        <button>Remove</button>
+                        <button>Returned</button>
+                        <button>CheckDetails</button>
+                    </div>
+                    </div>
+                `
+            });
+        }
+        document.getElementById("books").addEventListener("click", async () => {
+            const response = await fetch("http://localhost:8080/manager/AllBooks");
+            data1 = await response.json();
+            console.log(data1);
+            customer.innerHTML = ""
+            frontEndHandler(data1)
+            document.getElementById("data").innerHTML = ""
+            document.getElementById("search").innerHTML =
+                `
+            <input type="number" id="searchid" placeholder="Search Book By Id">
+            <input type="text" id="searchname" placeholder="Search Book By Name">
+            `
+            document.getElementById("searchid").addEventListener("keyup", async (e) => {
+                console.log(e.target.value)
+                if (e.target.value === "")
+                    frontEndHandler(data1)
+                else {
+                    const url = `http://localhost:8080/manager/SearchBookById?id=${e.target.value}`
+                    const res = await fetch(url);
+                    if (res.ok) {
+                        let data = await res.text();
+                        if (!data) { return }
+                        data = JSON.parse(data);
+                        data = [data]
+                        frontEndHandler(data)
+                    }
+
+                }
+            })
+            document.getElementById("searchname").addEventListener("keyup", async (e) => {
+                console.log(e.target.value)
+                if (e.target.value === "")
+                    frontEndHandler(data1)
+                else {
+                    const url = `http://localhost:8080/manager/SearchBooks?name=${e.target.value}`
+                    const res = await fetch(url);
+                    let data = await res.json();
+                    frontEndHandler(data)
+                }
+            })
+            document.getElementById("output").addEventListener("click", async (e) => {
+
+                //  document.getElementById("search").innerHTML=""
+               
+                if (e.target.tagName !== "BUTTON")
+                    return;
+                const cust = e.target.closest(".book");
+                if(cust===null)
+                   return;
+                const id = cust.getAttribute("bookid");
+                console.log(id)
+                const action = e.target.textContent;
+                const url = action === "Remove" ?
+                    `http://localhost:8080/manager/RemoveBook?id=${id}`
+                    :
+                    `http://localhost:8080/manager/BookDetails?id=${id}`
+                if (action === "Remove") {
+                    const res = await fetch(url, {
+                        method: "POST"
+                    })
+                    alert("Book Removed Successfully")
+                }
+                else if (action === "Returned") {
+                    const link = `http://localhost:8080/manager/ReturnedRentBook?id=${id}`;
+                    const res = await fetch(link, {
+                        method: "POST"
+                    })
+                    const da=await res.text();
+                    if(da)
+                      alert("Book Updated in book store")
+                    else 
+                      alert("Book is Not Rented")
+                }
+                else {
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    customer.innerHTML = ""
+                    document.getElementById("data").innerHTML = ""
+                    document.getElementById("manage").innerHTML = ""
+                    d.innerHTML = "";
+                    d.innerHTML =
+                        `
+                <button id="back">Back<button>
+                <div class="deta"> 
+                   <p>Name:-${data.bookName}</p>
+                   <p>Author:-${data.bookAuthorName}</p>    
+                   <p>Bought:-${data.bought}</p>
+                   <p>Rented:-${data.Rented}</p>
+                   <p>Price:-${data.price}</p>
+                </div>
+                `
+                    document.getElementById("back").addEventListener("click", () => {
+                        window.location.href = "manager.html"
+                    })
+                }
+            })
+        })
+        document.getElementById("output").addEventListener("click", async (e) => {
+            // document.getElementById("search").innerHTML=""
+            if (e.target.tagName !== "BUTTON")
+                return;
+            const cust = e.target.closest(".customers");
+            if(cust===null)
+                return;
+            const id = cust.getAttribute("custid");
+            const action = e.target.textContent;
+            const url = action === "Remove" ?
+                `http://localhost:8080/manager/RemoveTheCustomer?id=${id}`
+                : `http://localhost:8080/manager/CheckDetails?id=${id}`;
+            console.log(action)
+            if (action === "Remove") {
+                const res = await fetch(url, {
+                    method: "POST"
+                })
+                alert("Customer removed successfully")
+            }
+            else {
+                const res = await fetch(url);
+                const data = await res.json();
+                customer.innerHTML = ""
+                document.getElementById("manage").innerHTML = ""
+                d.innerHTML = "";
+                d.innerHTML =
+                    `
+                <button id="back">Back<button>
+                <div class="deta"> 
+                   <p>Name:-${data.name}</p>
+                   <p>Email:-${data.email}</p>    
+                   <p>Phno:-${data.phno}</p>
+                   <p>Password:-${data.password}</p>
+                   <p>Gender:-${data.gender}</p>
+                </div>
+                `
+                document.getElementById("back").addEventListener("click", () => {
+                    window.location.href = "manager.html"
+                })
+            }
+        })
+        document.getElementById("add").addEventListener("click", async (e) => {
+            const output = document.getElementById("data");
+            document.getElementById("search").innerHTML = ""
+            customer.innerHTML = ""
+            output.innerHTML = ""
+            output.innerHTML =
+                `
+           <div id="bookform">
+            <h1>Add New Book Here</h1>
+            <form id="sub">
+              <input type="text" placeholder="Enter book Name" name="bookname">
+              <input type="text" placeholder="Enter Author Name" name="authorname" >
+              <input type="text" placeholder="Enter  Price" name=price>
+              <input type="text" placeholder="Enter Rent Price" name="rentprice">
+              <input type="submit">
+            </form>
+              </div>
+           `
+            document.getElementById("sub").addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const bookName = this.bookname.value;
+                const bookAuthorName = this.authorname.value;
+                const price = Number(this.price.value);
+                const RentPrice = Number(this.rentprice.value);
+                const data1 = { bookName, bookAuthorName, price, RentPrice };
+                const res = await fetch("http://localhost:8080/manager/AddBook", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data1)
+                });
+                const d = await res.json();
+                console.log(d);
+                if (res.ok){
+                  alert("book added successfully")
+                    location.reload();
+                }
+            })
+        })
+        document.getElementById("rentedbooks").addEventListener("click", async () => {
+            customer.innerHTML=""
+            document.getElementById("data").innerHTML=""
+            document.getElementById("search").innerHTML =
+                `
+            <input type="number" id="searchid" placeholder="Search Book By Id">
+            <input type="text" id="searchname" placeholder="Search Book By Name">
+            `
+            document.getElementById("searchid").addEventListener("keyup", async (e) => {
+                const url = `http://localhost:8080/manager/SearchBookById?id=${e.target.value}`
+                const res = await fetch(url)
+                let data = await res.text();
+                if (data) {
+                    data = JSON.parse(data)
+                    data = [data];
+                    frontEndHandler(data);
+                }
+            })
+            document.getElementById("searchname").addEventListener("keyup", async (e) => {
+                const url = `http://localhost:8080/manager/SearchBooks?name=${e.target.value}`
+                const res = await fetch(url)
+                if (!res.ok)
+                    return
+                let data = await res.text();
+                if (data) {
+                    data = JSON.parse(data)
+                    data = [data];
+                    frontEndHandler(data);
+                }
+            })
+            const res = await fetch(`http://localhost:8080/manager/AllBooks`)
+            let data = await res.json();
+            data = data.filter(b => b.Rented)
+            frontEndHandler(data);
+        })
+        document.getElementById("boughtbooks").addEventListener("click", async () => {
+            document.getElementById("search").innerHTML =
+                `
+            <input type="number" id="searchid" placeholder="Search Book By Id">
+            <input type="text" id="searchname" placeholder="Search Book By Name">
+            `
+            document.getElementById("searchid").addEventListener("keyup", async (e) => {
+                const url = `http://localhost:8080/manager/SearchBookById?id=${e.target.value}`
+                const res = await fetch(url)
+                let data = await res.text();
+                if (data) {
+                    data = JSON.parse(data)
+                    data = [data];
+                    frontEndHandler(data);
+                }
+            })
+            document.getElementById("searchname").addEventListener("keyup", async (e) => {
+                const url = `http://localhost:8080/manager/SearchBooks?name=${e.target.value}`
+                const res = await fetch(url)
+                let data = await res.text();
+                if (data) {
+                    data = JSON.parse(data)
+                    data = [data];
+                    frontEndHandler(data);
+                }
+                
+            })
+            const res = await fetch(`http://localhost:8080/manager/AllBooks`)
+            let data = await res.json();
+            data = data.filter(b => b.bought)
+            frontEndHandler(data);
+        })
+    </script>
+</body>
+
+</html>

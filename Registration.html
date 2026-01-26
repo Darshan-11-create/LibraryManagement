@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration</title>
+    <link rel="stylesheet" href="Registration.css">
+</head>
+
+<body>
+    <div class="form-styler">
+        <form id="EnterDetails">
+            <h2>Registration Form</h2>
+            Name<input type="text" placeholder="Enter your name" name="name">
+            Phno<input type="number" placeholder="Enter your number" name="phno">
+            Email<input type="email" placeholder="Enter your mail" name="email">
+            <div id="radio-adjust">
+                Gender
+                Male<input type="radio" name="gender">
+                Female<input type="radio" name="gender">
+            </div>
+            Password<input type="password" name="Password" id="" placeholder="Enter your password">
+            <div id="otpvalidater"></div>
+        </form>
+    </div>
+    <script>
+        let form=document.getElementById("EnterDetails")
+        const otpplace=document.getElementById("otpvalidater");
+        otpplace.innerHTML=
+        `
+        <input type="button" value="send otp" id="sendotp">
+        `
+        document.getElementById("sendotp").addEventListener("click", async function (e) {
+            e.preventDefault();
+            const name = form.name.value;
+            const phno = form.phno.value;
+            const email = form.email.value;
+            const userpresent=await fetch(`http://localhost:8080/manager/CustomerDetails?name=${name}`)
+            let da=await userpresent.json();
+            if(!da){
+                alert("User already present");
+                return;
+            }
+            if(phno===null){
+                alert("Phone Number fieldcannot be empty")
+                return;
+            }
+            if(email===null){
+                alert("Email Field Cannot be empty")
+                return;
+            }
+            let gender = document.querySelector('input[type="radio"]:checked')?.value;
+            if (gender === "on")
+                gender = "male"
+            else
+                gender = "female"
+            const password = form.Password.value;
+            const Registration = { name, phno, email, gender, password };
+              alert("Otp Sending Please Wait")
+          fetch(`http://localhost:8080/email/sendOtp?user=${email}`)
+            .then(res=>res.json())
+             .then( res=>{
+            if(res===true){
+                alert("Check your mail.Otp sent")
+                document.getElementById("otpvalidater").innerHTML=
+                `
+                <input type="number" placeholder="Enter otp here" id="otpvalid">
+                <input type="button" id="validotp"  value="Register">
+                `
+                document.getElementById("validotp").addEventListener("click",async()=>{
+                e.preventDefault();
+                 
+                const otp=document.getElementById("otpvalid").value;
+                // emailres=await 
+                if(otp===""){
+                    alert("Please Enter ur otp")
+                    return
+                }
+                   alert("Otp Validating Please Wait")
+                   let valid=true;
+                fetch(`http://localhost:8080/email/validOtp?user=${email}&otpNumber=${otp}`)
+                .then(res=>res.json())
+                .then(res=>{
+                if(res!==true){
+                 valid=false;
+                }
+        })
+        if(valid){
+            const response = await fetch("http://localhost:8080/Registration", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(Registration)
+            });
+            const data = await response.json();
+            console.log(data);
+            // data=JSON.stringify(data);
+            if (data === true)
+                window.location.href = "login.html"
+            else
+                alert("User alreay Exists")
+        }
+        else
+           alert("Enter Valid otp")
+             })
+            }
+        })
+        });
+        
+    </script>
+</body>
+
+</html>

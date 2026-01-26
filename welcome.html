@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome Page</title>
+  <link rel="stylesheet" href="welcome.css">
+</head>
+
+<body>
+  <h1>Welcome To The Book Store</h1>
+  <nav id="BookNavigationPage">
+    <ul id="Home">
+      <a href="">
+        <li>Home</li>
+      </a>
+      <a href="">
+        <li>Instructions</li>
+      </a>
+      <a href="SearchBook.html" target="_blank">
+        <li>Search Book</li>
+      </a>
+    </ul>
+    <ul id="LoginPage">
+      <a href="login.html" target="_blank">
+        <li>Login</li>
+      </a>
+      <a href="Registration.html" target="_blank">
+        <li>Register</li>
+      </a>
+    </ul>
+  </nav>
+  <div id="container"></div>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    
+  <script src="/connectSocket.js"></script>
+  <script>
+          connectSocket(book=>{
+            handleBookMessage(book)
+          })
+        function handleBookMessage(msg){
+            const action=msg.action;
+            const book=msg.book;
+            let box=null;
+            let availEl=null;
+            if(action!=="NewBook"){
+             box=document.querySelector(`.box[bookid="${book.id}"]`);
+             availEl=box.querySelector(".valid");
+            }
+            if(action==="Rent"){
+               availEl.innerText="Taken For Rent";
+            }
+             else if(action==="Bought"){
+                 availEl.innerText="Already Bought"
+                }
+              else if(action==="Returned")
+                  availEl.innerText="Available"
+              else if(action==="NewBook"){
+                fetchBooks();
+              }
+              else
+                 deleteBook(book)
+            }
+            function deleteBook(item){
+                const box=document.querySelector(`.box[bookid="${item.id}"]`);
+                box.remove()
+            }
+    // fetchBooks();
+    const container = document.getElementById("container");
+     fetchBooks();
+    async function fetchBooks() {
+
+      // const token=localStorage.getItem("token");
+      container.innerHTML=""
+      const response = await fetch("http://localhost:8080/AvailableBooks")
+      const data = await response.json();
+      if (data === null)
+        container.innerHTML = "Sorry we ran out of stock";
+      data.forEach(item => {
+        let st = item.Rented ? "Not Available" : item.bought ? "Not Availabe" : "Available";
+        const price = "cost:-  " + item.price
+        container.innerHTML +=
+          `<div class="box" bookid="${item.id}">
+                <p>${item.bookName}</p>
+                <p>${item.bookAuthorName}</p>
+                <p>${price}</p>
+                <p class="valid">${st}</p>
+                <div class="button">
+                 <button>Buy</button>
+                 <button>Rent</button>
+                 </div>
+                  </div>`;
+
+      });
+      const token = localStorage.getItem("token");
+      const boxes = container.querySelectorAll(".box");
+      boxes.forEach(box => {
+        const buttons = box.querySelectorAll(".button button");
+        buttons.forEach(button => {
+          button.addEventListener("click", async (e) => {
+            const action = button.textContent;
+            if (action == "Buy") {
+              alert("First login sir/madam")
+            }
+            else {
+              alert("First login sir/madam")
+            }
+          })
+        })
+      })
+    }
+  </script>
+</body>
+
+</html>
