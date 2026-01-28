@@ -9,6 +9,24 @@
 </head>
 
 <body>
+    <div class="center-loading" id="centerLoader">
+    <div class="loader-book">
+        <div class="book-inner">
+            <div class="book-spine"></div>
+            <div class="pages-container">
+                <div class="page page1"></div>
+                <div class="page page2"></div>
+                <div class="page page3"></div>
+                <div class="page page4"></div>
+                <div class="page page5"></div>
+                <div class="page page6"></div>
+            </div>
+        </div>
+    </div>
+    <div class="loading-text">PROCESSING REQUEST…</div>
+</div>
+
+</div>
     <h1>Welcome Manager</h1>
     <h2>You can update your library status here</h2>
     <div id="manage">
@@ -30,6 +48,32 @@
          const customer = document.getElementById("output");
         let data1;
         const d = document.getElementById("data")
+              const centerLoader = document.getElementById("centerLoader");
+
+function showCenterLoading() {
+    centerLoader.classList.add("active");
+    document.body.classList.add("blurred");
+}
+
+function hideCenterLoading() {
+    centerLoader.classList.remove("active");
+    document.body.classList.remove("blurred");
+}
+
+        function showSkeletonLoading() {
+            container.innerHTML = `
+                <div class="skeleton-container">
+                    ${Array(6).fill().map(() => `
+                        <div class="skeleton-box">
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line"></div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
          connectSocket(book=>{
             handleBookMessage(book)
           })
@@ -67,8 +111,13 @@
                  deleteBook(book)
             }
             async function deleteBook(item){
+               try{
+                showCenterLoading();
                 const response = await fetch("http://localhost:8080/manager/AllBooks");
             data1 = await response.json();
+               }finally{
+                hideCenterLoading();
+            }
             frontEndHandler(data1)
             }
         connectCustomerSocket(customer=>{
@@ -175,8 +224,14 @@
             });
         }
         document.getElementById("books").addEventListener("click", async () => {
-            const response = await fetch("http://localhost:8080/manager/AllBooks");
+            try{
+              showCenterLoading();
+                const response = await fetch("http://localhost:8080/manager/AllBooks");
             data1 = await response.json();
+            }
+            finally{
+                hideCenterLoading();
+            }
             console.log(data1);
             customer.innerHTML = ""
             frontEndHandler(data1)
@@ -191,8 +246,14 @@
                 if (e.target.value === "")
                     frontEndHandler(data1)
                 else {
+                    try{
+                        // showCenterLoading();
                     const url = `http://localhost:8080/manager/SearchBookById?id=${e.target.value}`
                     const res = await fetch(url);
+                    }
+                    finally{
+                        // hideCenterLoading();
+                    }
                     if (res.ok) {
                         let data = await res.text();
                         if (!data) { return }
@@ -231,25 +292,43 @@
                     :
                     `http://localhost:8080/manager/BookDetails?id=${id}`
                 if (action === "Remove") {
+                    try{
+                        showCenterLoading();
                     const res = await fetch(url, {
                         method: "POST"
                     })
                     alert("Book Removed Successfully")
                 }
+                finally{
+  hideCenterLoading();
+                }
+                }
                 else if (action === "Returned") {
+                    try{
+                        showCenterLoading();
                     const link = `http://localhost:8080/manager/ReturnedRentBook?id=${id}`;
                     const res = await fetch(link, {
                         method: "POST"
                     })
                     const da=await res.text();
+                }
+                finally{
+                    hideCenterLoading();
+                }
                     if(da)
                       alert("Book Updated in book store")
                     else 
                       alert("Book is Not Rented")
                 }
                 else {
+                    try{
+                        showCenterLoading();
                     const res = await fetch(url);
                     const data = await res.json();
+                    }
+                    finally{
+           hideCenterLoading();
+                    }
                     customer.innerHTML = ""
                     document.getElementById("data").innerHTML = ""
                     document.getElementById("manage").innerHTML = ""
@@ -285,14 +364,26 @@
                 : `http://localhost:8080/manager/CheckDetails?id=${id}`;
             console.log(action)
             if (action === "Remove") {
+                try{
+                    showCenterLoading();
                 const res = await fetch(url, {
                     method: "POST"
                 })
                 alert("Customer removed successfully")
             }
+            finally{
+                   hideCenterLoading();
+            }
+            }
             else {
+                try{
+                    showCenterLoading();
                 const res = await fetch(url);
                 const data = await res.json();
+                }
+                finally{
+              hideCenterLoading();
+                }
                 customer.innerHTML = ""
                 document.getElementById("manage").innerHTML = ""
                 d.innerHTML = "";
@@ -338,6 +429,8 @@
                 const price = Number(this.price.value);
                 const RentPrice = Number(this.rentprice.value);
                 const data1 = { bookName, bookAuthorName, price, RentPrice };
+                try{
+                    showCenterLoading();
                 const res = await fetch("http://localhost:8080/manager/AddBook", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -347,8 +440,12 @@
                 console.log(d);
                 if (res.ok){
                   alert("book added successfully")
-                    location.reload();
+                    // location.reload();
                 }
+            }
+            finally{
+                hideCenterLoading();
+            }
             })
         })
         document.getElementById("rentedbooks").addEventListener("click", async () => {

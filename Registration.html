@@ -9,6 +9,15 @@
 </head>
 
 <body>
+    <div class="center-loader" id="centerLoader">
+        <div class="dots">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div class="loading-text" id="loaderText">Loading…</div>
+    </div>
+
     <div class="form-styler">
         <form id="EnterDetails">
             <h2>Registration Form</h2>
@@ -17,96 +26,173 @@
             Email<input type="email" placeholder="Enter your mail" name="email">
             <div id="radio-adjust">
                 Gender
-                Male<input type="radio" name="gender">
-                Female<input type="radio" name="gender">
+                Male<input type="radio" name="gender" value="male">
+                Female<input type="radio" name="gender" value="female">
             </div>
             Password<input type="password" name="Password" id="" placeholder="Enter your password">
             <div id="otpvalidater"></div>
         </form>
     </div>
     <script>
-        let form=document.getElementById("EnterDetails")
-        const otpplace=document.getElementById("otpvalidater");
-        otpplace.innerHTML=
-        `
-        <input type="button" value="send otp" id="sendotp">
-        `
+        const centerLoader = document.getElementById("centerLoader");
+        const loaderText = document.getElementById("loaderText");
+
+        function showLoader(text) {
+            loaderText.innerText = text || "Loading…";
+            centerLoader.style.display = "flex";
+            document.body.classList.add("blurred");
+        }
+
+        function hideLoader() {
+            centerLoader.style.display = "none";
+            document.body.classList.remove("blurred");
+        }
+
+        let form = document.getElementById("EnterDetails");
+        const otpplace = document.getElementById("otpvalidater");
+        
+        // Store registration data globally
+        let Registration = null;
+
+        otpplace.innerHTML = `<input type="button" value="send otp" id="sendotp">`;
+        
         document.getElementById("sendotp").addEventListener("click", async function (e) {
             e.preventDefault();
+            
             const name = form.name.value;
             const phno = form.phno.value;
             const email = form.email.value;
-            const userpresent=await fetch(`http://localhost:8080/manager/CustomerDetails?name=${name}`)
-            let da=await userpresent.json();
-            if(!da){
-                alert("User already present");
-                return;
-            }
-            if(phno===null){
-                alert("Phone Number fieldcannot be empty")
-                return;
-            }
-            if(email===null){
-                alert("Email Field Cannot be empty")
-                return;
-            }
-            let gender = document.querySelector('input[type="radio"]:checked')?.value;
-            if (gender === "on")
-                gender = "male"
-            else
-                gender = "female"
             const password = form.Password.value;
-            const Registration = { name, phno, email, gender, password };
-              alert("Otp Sending Please Wait")
-          fetch(`http://localhost:8080/email/sendOtp?user=${email}`)
-            .then(res=>res.json())
-             .then( res=>{
-            if(res===true){
-                alert("Check your mail.Otp sent")
-                document.getElementById("otpvalidater").innerHTML=
-                `
-                <input type="number" placeholder="Enter otp here" id="otpvalid">
-                <input type="button" id="validotp"  value="Register">
-                `
-                document.getElementById("validotp").addEventListener("click",async()=>{
-                e.preventDefault();
-                 
-                const otp=document.getElementById("otpvalid").value;
-                // emailres=await 
-                if(otp===""){
-                    alert("Please Enter ur otp")
-                    return
-                }
-                   alert("Otp Validating Please Wait")
-                   let valid=true;
-                fetch(`http://localhost:8080/email/validOtp?user=${email}&otpNumber=${otp}`)
-                .then(res=>res.json())
-                .then(res=>{
-                if(res!==true){
-                 valid=false;
-                }
-        })
-        if(valid){
-            const response = await fetch("http://localhost:8080/Registration", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(Registration)
-            });
-            const data = await response.json();
-            console.log(data);
-            // data=JSON.stringify(data);
-            if (data === true)
-                window.location.href = "login.html"
-            else
-                alert("User alreay Exists")
-        }
-        else
-           alert("Enter Valid otp")
-             })
+
+            // Validation
+            if (!name || name.trim() === "") {
+                alert("Name field cannot be empty");
+                return;
             }
-        })
+            if (!phno || phno.trim() === "") {
+                alert("Phone Number field cannot be empty");
+                return;
+            }
+            if (!email || email.trim() === "") {
+                alert("Email Field cannot be empty");
+                return;
+            }
+            if (!password || password.trim() === "") {
+                alert("Password field cannot be empty");
+                return;
+            }
+
+            // Check if user already exists
+            showLoader("Checking user...");
+            try {
+                const userpresent = await fetch(`http://localhost:8080/manager/CustomerDetails?name=${name}`);
+                let da = await userpresent.json();
+                hideLoader();
+                
+                // If da is NOT null/empty, user exists
+                if (da) {
+                    alert("User already present");
+                    return;
+                }
+            } catch (error) {
+                hideLoader();
+                console.error("Error checking user:", error);
+                alert("Error checking user existence");
+                return;
+            }
+
+            // Get gender
+            let gender = document.querySelector('input[name="gender"]:checked')?.value;
+            if (!gender) {
+                alert("Please select gender");
+                return;
+            }
+
+            // Store registration data
+            Registration = { name, phno, email, gender, password };
+
+            // Send OTP
+            showLoader("Sending OTP…");
+            try {
+                let res = await fetch(`http://localhost:8080/email/sendOtp?user=${email}`);
+                res = await res.json();
+                hideLoader();
+
+                if (res === true) {
+                    alert("Check your mail. OTP sent");
+                    document.getElementById("otpvalidater").innerHTML = `
+                        <input type="number" placeholder="Enter otp here" id="otpvalid">
+                        <input type="button" id="validotp" value="Register">
+                    `;
+
+                    // Attach event listener to the new button
+                    document.getElementById("validotp").addEventListener("click", validateOTPAndRegister);
+                } else {
+                    alert("Failed to send OTP. Please try again.");
+                }
+            } catch (error) {
+                hideLoader();
+                console.error("Error sending OTP:", error);
+                alert("Error sending OTP");
+            }
         });
-        
+
+        async function validateOTPAndRegister(e) {
+            e.preventDefault();
+
+            const otp = document.getElementById("otpvalid").value;
+            const email = form.email.value;
+
+            if (!otp || otp.trim() === "") {
+                alert("Please enter your OTP");
+                return;
+            }
+
+            console.log("Validating OTP:", otp, "for email:", email); // Debug log
+
+            showLoader("Validating OTP…");
+
+            try {
+                const otpres = await fetch(`http://localhost:8080/email/validOtp?user=${email}&otpNumber=${otp}`);
+                const isValid = await otpres.json();
+                
+                console.log("OTP validation response:", isValid); // Debug log
+                
+                hideLoader();
+
+                // Check if OTP is valid (should be true for valid OTP)
+                if (isValid !== true) {
+                    alert("Invalid OTP. Please enter the correct OTP.");
+                    return;
+                }
+
+                // OTP is valid, proceed to registration
+                alert("OTP validated successfully!");
+                showLoader("Registration in progress…");
+                
+                const response = await fetch("http://localhost:8080/Registration", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(Registration)
+                });
+                const data = await response.json();
+                
+                console.log("Registration response:", data); // Debug log
+                
+                hideLoader();
+
+                if (data === true) {
+                    alert("Registration successful!");
+                    window.location.href = "login.html";
+                } else {
+                    alert("Registration failed. User might already exist.");
+                }
+            } catch (err) {
+                hideLoader();
+                console.error("Error during OTP validation or registration:", err);
+                alert("An error occurred. Please try again.");
+            }
+        }
     </script>
 </body>
 
