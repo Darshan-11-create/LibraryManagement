@@ -13,7 +13,7 @@ public class CORSGlobalConnectors {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://127.0.0.1:5501"); // your frontend
+        config.addAllowedOrigin("*"); // your frontend
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 
