@@ -1,11 +1,21 @@
-FROM eclipse-temurin:17-jdk
+FROM maven:3.9.3-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-COPY . .
+# Copy everything
+COPY pom.xml .
+COPY src ./src
 
-RUN ./mvnw clean package -DskipTests
+# Build the project
+RUN mvn clean package -DskipTests
+
+# Second stage: runtime
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+
+# Copy the jar from build stage
+COPY --from=build /app/target/demo-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "target/demo-0.0.1-SNAPSHOT.jar "]
+ENTRYPOINT ["java", "-jar", "app.jar"]
