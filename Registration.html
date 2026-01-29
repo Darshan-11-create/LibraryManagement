@@ -85,7 +85,7 @@
             // Check if user already exists
             showLoader("Checking user...");
             try {
-                const userpresent = await fetch(`http://localhost:8080/manager/CustomerDetails?name=${name}`);
+                const userpresent = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/CustomerDetails?name=${name}`);
                 let da = await userpresent.json();
                 hideLoader();
                 
@@ -114,7 +114,7 @@
             // Send OTP
             showLoader("Sending OTP…");
             try {
-                let res = await fetch(`http://localhost:8080/email/sendOtp?user=${email}`);
+                let res = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/email/sendOtp?user=${email}`);
                 res = await res.json();
                 hideLoader();
 
@@ -153,7 +153,7 @@
             showLoader("Validating OTP…");
 
             try {
-                const otpres = await fetch(`http://localhost:8080/email/validOtp?user=${email}&otpNumber=${otp}`);
+                const otpres = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/email/validOtp?user=${email}&otpNumber=${otp}`);
                 const isValid = await otpres.json();
                 
                 console.log("OTP validation response:", isValid); // Debug log
@@ -170,7 +170,7 @@
                 alert("OTP validated successfully!");
                 showLoader("Registration in progress…");
                 
-                const response = await fetch("http://localhost:8080/Registration", {
+                const response = await fetch("https://librarymanagementbackend-d5pk.onrender.com/Registration", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(Registration)

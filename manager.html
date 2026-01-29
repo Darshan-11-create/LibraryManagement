@@ -43,7 +43,7 @@
     <div id="data"></div>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-  <script src="/connectSocket.js"></script>
+  <!-- <script src="/connectSocket.js"></script> -->
     <script>
          const customer = document.getElementById("output");
         let data1;
@@ -90,20 +90,20 @@ function hideCenterLoading() {
              }
             if(action==="Rent"){
                availEl.innerText="Taken For Rent";
-                 const res=await fetch(`http://localhost:8080/manager/AllBooks`);
+                 const res=await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`);
                  book=await res.json();
                  frontEndHandler(book);
             }
              else if(action==="Bought"){
                  availEl.innerText="Already Bought"
-                  const res=await fetch(`http://localhost:8080/manager/AllBooks`);
+                  const res=await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`);
                  book=await res.json();
                  frontEndHandler(book);
                 }
               else if(action==="Returned")
                   availEl.innerText="Available"
               else if(action==="NewBook"){
-                const res=await fetch(`http://localhost:8080/manager/AllBooks`);
+                const res=await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`);
                 let data=await res.json();
                 frontEndHandler(data)
               }
@@ -113,7 +113,7 @@ function hideCenterLoading() {
             async function deleteBook(item){
                try{
                 showCenterLoading();
-                const response = await fetch("http://localhost:8080/manager/AllBooks");
+                const response = await fetch("https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks");
             data1 = await response.json();
                }finally{
                 hideCenterLoading();
@@ -133,7 +133,7 @@ function hideCenterLoading() {
             }
         }
         async function name() {
-            const response = await fetch("http://localhost:8080/manager/AllCustomers");
+            const response = await fetch("https://librarymanagementbackend-d5pk.onrender.com/manager/AllCustomers");
             data1 = await response.json();
             console.log(data1);
             customer.innerHTML = ""
@@ -148,7 +148,7 @@ function hideCenterLoading() {
                 if (e.target.value === "")
                     frontEndHandler(data1)
                 else {
-                    const url = `http://localhost:8080/manager/SearchCustomerById?id=${e.target.value}`
+                    const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchCustomerById?id=${e.target.value}`
                     const res = await fetch(url);
                     if (res.ok) {
                         let data = await res.text();
@@ -166,7 +166,7 @@ function hideCenterLoading() {
                 if (e.target.value === "")
                     frontEndHandler1(data1)
                 else {
-                    const url = `http://localhost:8080/manager/SearchCustomer?name=${e.target.value}`
+                    const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchCustomer?name=${e.target.value}`
                     const res = await fetch(url);
                     let data = await res.json();
                     frontEndHandler(data)
@@ -226,7 +226,7 @@ function hideCenterLoading() {
         document.getElementById("books").addEventListener("click", async () => {
             try{
               showCenterLoading();
-                const response = await fetch("http://localhost:8080/manager/AllBooks");
+                const response = await fetch("https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks");
             data1 = await response.json();
             }
             finally{
@@ -248,7 +248,7 @@ function hideCenterLoading() {
                 else {
                     try{
                         // showCenterLoading();
-                    const url = `http://localhost:8080/manager/SearchBookById?id=${e.target.value}`
+                    const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchBookById?id=${e.target.value}`
                     const res = await fetch(url);
                     }
                     finally{
@@ -269,7 +269,7 @@ function hideCenterLoading() {
                 if (e.target.value === "")
                     frontEndHandler(data1)
                 else {
-                    const url = `http://localhost:8080/manager/SearchBooks?name=${e.target.value}`
+                    const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchBooks?name=${e.target.value}`
                     const res = await fetch(url);
                     let data = await res.json();
                     frontEndHandler(data)
@@ -288,9 +288,9 @@ function hideCenterLoading() {
                 console.log(id)
                 const action = e.target.textContent;
                 const url = action === "Remove" ?
-                    `http://localhost:8080/manager/RemoveBook?id=${id}`
+                    `https://librarymanagementbackend-d5pk.onrender.com/manager/RemoveBook?id=${id}`
                     :
-                    `http://localhost:8080/manager/BookDetails?id=${id}`
+                    `https://librarymanagementbackend-d5pk.onrender.com/manager/BookDetails?id=${id}`
                 if (action === "Remove") {
                     try{
                         showCenterLoading();
@@ -306,7 +306,7 @@ function hideCenterLoading() {
                 else if (action === "Returned") {
                     try{
                         showCenterLoading();
-                    const link = `http://localhost:8080/manager/ReturnedRentBook?id=${id}`;
+                    const link = `https://librarymanagementbackend-d5pk.onrender.com/manager/ReturnedRentBook?id=${id}`;
                     const res = await fetch(link, {
                         method: "POST"
                     })
@@ -360,8 +360,8 @@ function hideCenterLoading() {
             const id = cust.getAttribute("custid");
             const action = e.target.textContent;
             const url = action === "Remove" ?
-                `http://localhost:8080/manager/RemoveTheCustomer?id=${id}`
-                : `http://localhost:8080/manager/CheckDetails?id=${id}`;
+                `https://librarymanagementbackend-d5pk.onrender.com/manager/RemoveTheCustomer?id=${id}`
+                : `https://librarymanagementbackend-d5pk.onrender.com/manager/CheckDetails?id=${id}`;
             console.log(action)
             if (action === "Remove") {
                 try{
@@ -431,7 +431,7 @@ function hideCenterLoading() {
                 const data1 = { bookName, bookAuthorName, price, RentPrice };
                 try{
                     showCenterLoading();
-                const res = await fetch("http://localhost:8080/manager/AddBook", {
+                const res = await fetch("https://librarymanagementbackend-d5pk.onrender.com/manager/AddBook", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data1)
@@ -457,7 +457,7 @@ function hideCenterLoading() {
             <input type="text" id="searchname" placeholder="Search Book By Name">
             `
             document.getElementById("searchid").addEventListener("keyup", async (e) => {
-                const url = `http://localhost:8080/manager/SearchBookById?id=${e.target.value}`
+                const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchBookById?id=${e.target.value}`
                 const res = await fetch(url)
                 let data = await res.text();
                 if (data) {
@@ -467,7 +467,7 @@ function hideCenterLoading() {
                 }
             })
             document.getElementById("searchname").addEventListener("keyup", async (e) => {
-                const url = `http://localhost:8080/manager/SearchBooks?name=${e.target.value}`
+                const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchBooks?name=${e.target.value}`
                 const res = await fetch(url)
                 if (!res.ok)
                     return
@@ -478,7 +478,7 @@ function hideCenterLoading() {
                     frontEndHandler(data);
                 }
             })
-            const res = await fetch(`http://localhost:8080/manager/AllBooks`)
+            const res = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`)
             let data = await res.json();
             data = data.filter(b => b.Rented)
             frontEndHandler(data);
@@ -490,7 +490,7 @@ function hideCenterLoading() {
             <input type="text" id="searchname" placeholder="Search Book By Name">
             `
             document.getElementById("searchid").addEventListener("keyup", async (e) => {
-                const url = `http://localhost:8080/manager/SearchBookById?id=${e.target.value}`
+                const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchBookById?id=${e.target.value}`
                 const res = await fetch(url)
                 let data = await res.text();
                 if (data) {
@@ -500,7 +500,7 @@ function hideCenterLoading() {
                 }
             })
             document.getElementById("searchname").addEventListener("keyup", async (e) => {
-                const url = `http://localhost:8080/manager/SearchBooks?name=${e.target.value}`
+                const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchBooks?name=${e.target.value}`
                 const res = await fetch(url)
                 let data = await res.text();
                 if (data) {
@@ -510,12 +510,13 @@ function hideCenterLoading() {
                 }
                 
             })
-            const res = await fetch(`http://localhost:8080/manager/AllBooks`)
+            const res = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`)
             let data = await res.json();
             data = data.filter(b => b.bought)
             frontEndHandler(data);
         })
     </script>
+    <script src="connectSocket.js"></script>
 </body>
 
 </html>
