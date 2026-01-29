@@ -2,7 +2,7 @@ let stompCustomerClient=null;
 let stompBookClient=null;
 function connectSocket(onmsg){
     // let socket=new SockJS("/topic");
-    const socket=new SockJS('https://librarymanagementbackend-d5pk.onrender.com/ws')
+    const socket=new SockJS('https://librarymanagementbackend-d5pk.onrender.com//ws')
     stompBookClient=Stomp.over(socket);
      stompBookClient.connect({},()=>{
         stompBookClient.subscribe("/topic/books",(msg)=>{
