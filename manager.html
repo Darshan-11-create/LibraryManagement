@@ -285,7 +285,7 @@ function hideCenterLoading() {
                 if(cust===null)
                    return;
                 const id = cust.getAttribute("bookid");
-                console.log(id)
+                
                 const action = e.target.textContent;
                 const url = action === "Remove" ?
                     `https://librarymanagementbackend-d5pk.onrender.com/manager/RemoveBook?id=${id}`
@@ -311,6 +311,7 @@ function hideCenterLoading() {
                         method: "POST"
                     })
                     const da=await res.text();
+                    console.log(id+" "+da)
                     if(da)
                       alert("Book Updated in book store")
                     else 
