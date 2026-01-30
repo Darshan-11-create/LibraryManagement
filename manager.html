@@ -311,14 +311,14 @@ function hideCenterLoading() {
                         method: "POST"
                     })
                     const da=await res.text();
-                }
-                finally{
-                    hideCenterLoading();
-                }
                     if(da)
                       alert("Book Updated in book store")
                     else 
                       alert("Book is Not Rented")
+                }
+                finally{
+                    hideCenterLoading();
+                }
                 }
                 else {
                     try{
