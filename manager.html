@@ -325,10 +325,8 @@ function hideCenterLoading() {
                         showCenterLoading();
                     const res = await fetch(url);
                     const data = await res.json();
-                    }
-                    finally{
-           hideCenterLoading();
-                    }
+                    if(!data)
+                       return;
                     customer.innerHTML = ""
                     document.getElementById("data").innerHTML = ""
                     document.getElementById("manage").innerHTML = ""
@@ -344,6 +342,10 @@ function hideCenterLoading() {
                    <p>Price:-${data.price}</p>
                 </div>
                 `
+            }
+                       finally{
+           hideCenterLoading();
+                    }
                     document.getElementById("back").addEventListener("click", () => {
                         window.location.href = "manager.html"
                     })
