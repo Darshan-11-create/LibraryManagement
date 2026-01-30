@@ -100,8 +100,9 @@ function hideCenterLoading() {
                  book=await res.json();
                  frontEndHandler(book);
                 }
-              else if(action==="Returned")
-                  availEl.innerText="Available"
+              else if(action==="Returned"){
+                   availEl.innerText="Available"
+              }
               else if(action==="NewBook"){
                 const res=await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`);
                 let data=await res.json();
@@ -310,7 +311,7 @@ function hideCenterLoading() {
                     const res = await fetch(link, {
                         method: "POST"
                     })
-                    const da=await res.text();
+                    const da=await res.json();
                     console.log(id+" "+da)
                     if(da)
                       alert("Book Updated in book store")
