@@ -137,6 +137,7 @@ function hideCenterLoading() {
                 const data1 = await response.json();
                 container.innerHTML = ""
                 data2 = data1;
+                console.log(data2);
                 applyfilter();
             } catch (error) {
                 console.error('Search error:', error);
@@ -252,6 +253,7 @@ function hideCenterLoading() {
         const range = document.getElementById("Range");
 
         async function applyfilter() {
+            console.log(data2)
             let sorted = data2;
             if (sorted.length === 0) {
                 showSkeletonLoading();
