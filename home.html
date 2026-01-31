@@ -269,27 +269,30 @@ async function fetchBooks(data) {
         const cd4 = document.getElementById("avai");
         const range = document.getElementById("Range");
 
-        async function applyfilter() {
-            console.log("Hello"+data2)
-            let sorted = data2;
-            if (sorted.length === 0) {
-                showSkeletonLoading();
-                sorted = await fetchData();
-            }
-            const max = parseInt(range.value);
-            sorted = sorted.filter(b => b.price <= max);
-            if (cd1.checked) {
-                sorted = [...sorted].sort((a, b) => a.price - b.price)
-            }
-            if (cd2.checked) {
-                sorted = [...sorted].sort((a, b) => b.price - a.price)
-            }
-            if (cd4.checked) {
-                sorted = [...sorted].sort((a, b) => (a.Rented - b.Rented))
-                sorted = [...sorted].sort((a, b) => (a.bought - b.bought))
-            }
-            fetchBooks(sorted);
-        }
+      async function applyfilter() {
+    let filtered = data2.length ? [...data2] : await fetchData();
+
+    // Price filter
+    const max = parseInt(range.value);
+    filtered = filtered.filter(b => b.price <= max);
+
+    // Availability filter (REAL FIX)
+    if (cd4.checked) {
+        filtered = filtered.filter(b => !b.Rented && !b.bought);
+    }
+
+    // Sorting
+    if (cd1.checked && !cd2.checked) {
+        filtered.sort((a, b) => a.price - b.price);
+    }
+    if (cd2.checked && !cd1.checked) {
+        filtered.sort((a, b) => b.price - a.price);
+    }
+
+    fetchBooks(filtered);
+}
+
+         
 
         cd1.addEventListener("change", applyfilter);
         cd2.addEventListener("change", applyfilter);
