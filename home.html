@@ -55,233 +55,72 @@
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
    <script src="connectSocket.js"></script>
     <script>
-        const centerLoader = document.getElementById("centerLoader");
+        const container = document.getElementById("container");
+const token = localStorage.getItem("token");
+const username = localStorage.getItem("name");
 
+let allBooks = [];
+let data2 = [];
+let cust_id;
+
+/* ---------------- LOADER ---------------- */
+const centerLoader = document.getElementById("centerLoader");
 function showCenterLoading() {
     centerLoader.classList.add("active");
-    document.body.classList.add("blurred");
 }
-
 function hideCenterLoading() {
     centerLoader.classList.remove("active");
-    document.body.classList.remove("blurred");
 }
 
-        function showSkeletonLoading() {
-            container.innerHTML = `
-                <div class="skeleton-container">
-                    ${Array(6).fill().map(() => `
-                        <div class="skeleton-box">
-                            <div class="skeleton-line"></div>
-                            <div class="skeleton-line"></div>
-                            <div class="skeleton-line"></div>
-                            <div class="skeleton-line"></div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
+/* ---------------- FETCH ALL BOOKS ---------------- */
+async function fetchData() {
+    const res = await fetch(
+        "https://librarymanagementbackend-d5pk.onrender.com/AvailableBooks",
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    allBooks = await res.json();
+    data2 = [...allBooks];
+    fetchBooks(data2);
+}
 
-        connectSocket(book => {
-            handleBookMessage(book)
-        })
-        const container = document.getElementById("container");
+/* ---------------- SEARCH ---------------- */
+document.getElementById("search").addEventListener("keyup", async (e) => {
+    const value = e.target.value.trim();
 
-        async function handleBookMessage(msg) {
-            const action = msg.action;
-            const book = msg.book;
-            let box = null;
-            let availEl = null;
-            if (action !== "NewBook") {
-                box = document.querySelector(`.box[bookid="${book.id}"]`);
-                availEl = box.querySelector(".avail");
-            }
-            if (action === "Rent") {
-                availEl.innerText = "Taken For Rent";
-            }
-            else if (action === "Bought") {
-                availEl.innerText = "Already Bought"
-            }
-            else if (action === "Returned") {
-                availEl.innerText = "Available"
-            }
-            else if (action === "NewBook") {
-                let data = await fetchData();
-                console.log(data)
-                fetchBooks(data);
-            }
-            else
-                deleteBook(book)
-        }
-
-        function deleteBook(item) {
-            const box = document.querySelector(`.box[bookid="${item.id}"]`);
-            box.remove()
-        }
-
-        let data2 = [];
-        document.getElementById("image").addEventListener("click", () => {
-            window.location.href = "welcome.html"
-        })
-        let searchTimeout;
-        document.getElementById("search").addEventListener('keyup', async function (event) {
-            const data = event.target.value;
-            clearTimeout(searchTimeout);
-            if (data.trim() === '') {
-                return;
-            }
-            
-            showSkeletonLoading();
-            
-            try {
-                const response = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/SearchBooks?name=${data}`,{
-                    headers: {
-        "Authorization": `Bearer ${token}`
-    }
-                });
-                const data1 = await response.json();
-                container.innerHTML = ""
-                data2 = data1;
-                console.log("Hello1"+data2);
-                applyfilter();
-            } catch (error) {
-                console.error('Search error:', error);
-                container.innerHTML = '<p style="text-align: center; padding: 40px; color: #e74c3c;">Error loading books. Please try again.</p>';
-            }
-        })
-
-        let cust_id;
-        let custdata;
-
-        const token = localStorage.getItem("token");
-        const username = localStorage.getItem("name");
-
-        async function name() {
-            showCenterLoading();
-
-            
-            try {
-                const res = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/CustomerDetails?name=${username}`, {
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
-                })
-                custdata = await res.json();
-                const pro = document.getElementById("userpro");
-                console.log(custdata)
-                cust_id = custdata.id;
-                const data1 = await fetchData();
-                fetchBooks(data1);
-            } catch (error) {
-                console.error('Error fetching customer details:', error);
-                alert('Error loading data. Please refresh the page.');
-            } finally {
-              hideCenterLoading();
-
-            }
-        }
-        name();
-
-      
-
-async function fetchBooks(data) {
-    container.innerHTML = "";
-    
-    if (!data || data.length === 0) {
-        container.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">No books found.</p>';
+    if (value === "") {
+        data2 = [...allBooks];
+        applyfilter();
         return;
     }
-    
-    // Build all HTML at once - THIS IS THE KEY FIX
-    const booksHTML = data.map(item => {
-        const avail = item.Rented ? "Taken For Rent" : item.bought ? "Already Bought" : "Available";
-        const price = "Price:- " + item.price;
-        const bookname = "BookName:- " + item.bookName;
-        const author = "AuthorName:- " + item.bookAuthorName;
-        
-        return `<div class="box" bookid="${item.id}">
-            <p>${bookname}</p>
-            <p>${author}</p>
-            <p>${price}</p>
-            <p class="avail">${avail}</p>
-            <div class="button">
-                <button>Buy</button>
-                <button>Rent</button>
-            </div>
-        </div>`;
-    }).join('');
-    
-    container.innerHTML = booksHTML;
-}
 
-        document.getElementById("container").addEventListener("click", async (e) => {
-            if (e.target.tagName !== "BUTTON")
-                return;
+    const res = await fetch(
+        `https://librarymanagementbackend-d5pk.onrender.com/SearchBooks?name=${value}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-            const button = e.target;
-            const box = button.closest(".box");
-            const id = box.getAttribute("bookid");
-            const action = button.textContent;
+    data2 = await res.json();
+    applyfilter();
+});
 
-    // start rotation
+/* ---------------- FILTERS ---------------- */
+const cd1 = document.getElementById("price1");
+const cd2 = document.getElementById("price2");
+const cd4 = document.getElementById("avai");
+const range = document.getElementById("Range");
 
+function applyfilter() {
+    let filtered = [...data2];
 
-            const url = action === "Buy" ?
-                `https://librarymanagementbackend-d5pk.onrender.com/PurchaseBook?id=${id}&cust_id=${cust_id}`
-                : `https://librarymanagementbackend-d5pk.onrender.com/RentBook?id=${id}&cust_id=${cust_id}`
-
-            try {
-                showCenterLoading()
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
-                })
-                const data = await response.json();
-                if (data)
-                    alert(`Thank you for ${action}ing book. Come to library`);
-                else
-                    alert("Book has been rented");
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Something went wrong. Please try again.');
-            } finally {
-    hideCenterLoading(); // stop rotation
-}
-
-        })
-
-        async function fetchData() {
-            try {
-                const response = await fetch("https://librarymanagementbackend-d5pk.onrender.com/AvailableBooks")
-                const data = await response.json();
-                console.log(data)
-                return data;
-            } catch (error) {
-                console.error('Error fetching books:', error);
-                return [];
-            }
-        }
-
-        const cd1 = document.getElementById("price1");
-        const cd2 = document.getElementById("price2");
-        const cd4 = document.getElementById("avai");
-        const range = document.getElementById("Range");
-
-      async function applyfilter() {
-    let filtered = data2.length ? [...data2] : await fetchData();
-
-    // Price filter
-    const max = parseInt(range.value);
+    // price
+    const max = Number(range.value);
     filtered = filtered.filter(b => b.price <= max);
 
-    // Availability filter (REAL FIX)
+    // availability
     if (cd4.checked) {
         filtered = filtered.filter(b => !b.Rented && !b.bought);
     }
 
-    // Sorting
+    // sorting
     if (cd1.checked && !cd2.checked) {
         filtered.sort((a, b) => a.price - b.price);
     }
@@ -292,18 +131,73 @@ async function fetchBooks(data) {
     fetchBooks(filtered);
 }
 
-         
+// make price sort exclusive
+cd1.addEventListener("change", () => cd2.checked = false);
+cd2.addEventListener("change", () => cd1.checked = false);
+range.addEventListener("input", applyfilter);
+cd4.addEventListener("change", applyfilter);
 
-        cd1.addEventListener("change", applyfilter);
-        cd2.addEventListener("change", applyfilter);
-        range.addEventListener("input", applyfilter);
-        cd4.addEventListener("change", applyfilter);
+/* ---------------- RENDER ---------------- */
+function fetchBooks(data) {
+    container.innerHTML = "";
 
-        document.getElementById("pro").addEventListener("click", () => {
-            window.location.href = "profile.html";
-        })
-    </script>
-      
+    if (!data.length) {
+        container.innerHTML = "<p>No books found</p>";
+        return;
+    }
+
+    container.innerHTML = data.map(item => `
+        <div class="box" bookid="${item.id}">
+            <p>BookName: ${item.bookName}</p>
+            <p>Author: ${item.bookAuthorName}</p>
+            <p>Price: ${item.price}</p>
+            <p class="avail">
+                ${item.Rented ? "Taken For Rent" : item.bought ? "Already Bought" : "Available"}
+            </p>
+            <div class="button">
+                <button>Buy</button>
+                <button>Rent</button>
+            </div>
+        </div>
+    `).join("");
+}
+
+/* ---------------- CUSTOMER ---------------- */
+async function loadCustomer() {
+    showCenterLoading();
+    const res = await fetch(
+        `https://librarymanagementbackend-d5pk.onrender.com/CustomerDetails?name=${username}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    const data = await res.json();
+    cust_id = data.id;
+    hideCenterLoading();
+}
+
+loadCustomer();
+fetchData();
+
+/* ---------------- BUY / RENT ---------------- */
+container.addEventListener("click", async (e) => {
+    if (e.target.tagName !== "BUTTON") return;
+
+    const box = e.target.closest(".box");
+    const id = box.getAttribute("bookid");
+    const action = e.target.textContent;
+
+    const url = action === "Buy"
+        ? `https://librarymanagementbackend-d5pk.onrender.com/PurchaseBook?id=${id}&cust_id=${cust_id}`
+        : `https://librarymanagementbackend-d5pk.onrender.com/RentBook?id=${id}&cust_id=${cust_id}`;
+
+    showCenterLoading();
+    await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    hideCenterLoading();
+});
+
+      </script>
 </body>
 
 </html>
