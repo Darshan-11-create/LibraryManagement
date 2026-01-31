@@ -122,10 +122,10 @@ function hideCenterLoading() {
         document.getElementById("image").addEventListener("click", () => {
             window.location.href = "welcome.html"
         })
-
+        let searchTimeout;
         document.getElementById("search").addEventListener('keyup', async function (event) {
             const data = event.target.value;
-            
+            clearTimeout(searchTimeout);
             if (data.trim() === '') {
                 return;
             }
