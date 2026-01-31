@@ -139,7 +139,7 @@ function hideCenterLoading() {
                 data2 = data1;
                 console.log(data2);
                 container.innerHTML = "";
-            data.forEach(item => {
+            data2.forEach(item => {
                 const avail = item.Rented ? "Taken For Rent" : item.bought ? "Already Bought" : "Available";
                 const price = "Price:- " + item.price;
                 const bookname = "BookName:- " + item.bookName;
