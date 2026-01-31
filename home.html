@@ -138,24 +138,7 @@ function hideCenterLoading() {
                 container.innerHTML = ""
                 data2 = data1;
                 console.log(data2);
-                container.innerHTML = "";
-            data2.forEach(item => {
-                const avail = item.Rented ? "Taken For Rent" : item.bought ? "Already Bought" : "Available";
-                const price = "Price:- " + item.price;
-                const bookname = "BookName:- " + item.bookName;
-                const author = "AuthorName:- " + item.bookAuthorName;
-                container.innerHTML +=
-                    `<div class="box" bookid="${item.id}">
-                    <p>${bookname}</p>
-                    <p>${author}</p>
-                    <p>${price}</p>
-                     <p class="avail">${avail}</p>
-                     <div class="button">
-                        <button>Buy</button>
-                        <button>Rent</button>
-                        </div>
-                    </div> `
-            });
+                applyfilter();
             } catch (error) {
                 console.error('Search error:', error);
                 container.innerHTML = '<p style="text-align: center; padding: 40px; color: #e74c3c;">Error loading books. Please try again.</p>';
@@ -271,7 +254,7 @@ function hideCenterLoading() {
 
         async function applyfilter() {
             console.log(data2)
-            let sorted = [...data2];
+            let sorted = data2;
             if (sorted.length === 0) {
                 showSkeletonLoading();
                 sorted = await fetchData();
