@@ -181,26 +181,37 @@ function hideCenterLoading() {
         }
         name();
 
-        async function fetchBooks(data) {
-            container.innerHTML = "";
-            data.forEach(item => {
-                const avail = item.Rented ? "Taken For Rent" : item.bought ? "Already Bought" : "Available";
-                const price = "Price:- " + item.price;
-                const bookname = "BookName:- " + item.bookName;
-                const author = "AuthorName:- " + item.bookAuthorName;
-                container.innerHTML +=
-                    `<div class="box" bookid="${item.id}">
-                    <p>${bookname}</p>
-                    <p>${author}</p>
-                    <p>${price}</p>
-                     <p class="avail">${avail}</p>
-                     <div class="button">
-                        <button>Buy</button>
-                        <button>Rent</button>
-                        </div>
-                    </div> `
-            });
-        }
+      
+
+async function fetchBooks(data) {
+    container.innerHTML = "";
+    
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">No books found.</p>';
+        return;
+    }
+    
+    // Build all HTML at once - THIS IS THE KEY FIX
+    const booksHTML = data.map(item => {
+        const avail = item.Rented ? "Taken For Rent" : item.bought ? "Already Bought" : "Available";
+        const price = "Price:- " + item.price;
+        const bookname = "BookName:- " + item.bookName;
+        const author = "AuthorName:- " + item.bookAuthorName;
+        
+        return `<div class="box" bookid="${item.id}">
+            <p>${bookname}</p>
+            <p>${author}</p>
+            <p>${price}</p>
+            <p class="avail">${avail}</p>
+            <div class="button">
+                <button>Buy</button>
+                <button>Rent</button>
+            </div>
+        </div>`;
+    }).join('');
+    
+    container.innerHTML = booksHTML;
+}
 
         document.getElementById("container").addEventListener("click", async (e) => {
             if (e.target.tagName !== "BUTTON")
