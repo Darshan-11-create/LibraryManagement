@@ -269,7 +269,6 @@ function hideCenterLoading() {
             }
             if (cd4.checked) {
                 sorted = [...sorted].sort((a, b) => (a.Rented - b.Rented))
-                sorted = [...sorted].sort((a, b) => (a.bought - b.bought))
             }
             fetchBooks(sorted);
         }
