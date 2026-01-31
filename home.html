@@ -180,6 +180,7 @@ function hideCenterLoading() {
         async function fetchBooks(data) {
             container.innerHTML = "";
             data.forEach(item => {
+                if(!item.bought){
                 const avail = item.Rented ? "Taken For Rent" : item.bought ? "Already Bought" : "Available";
                 const price = "Price:- " + item.price;
                 const bookname = "BookName:- " + item.bookName;
@@ -195,7 +196,9 @@ function hideCenterLoading() {
                         <button>Rent</button>
                         </div>
                     </div> `
+                }
             });
+        
         }
 
         document.getElementById("container").addEventListener("click", async (e) => {
