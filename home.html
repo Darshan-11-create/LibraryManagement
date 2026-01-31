@@ -108,19 +108,18 @@ const cd2 = document.getElementById("price2");
 const cd4 = document.getElementById("avai");
 const range = document.getElementById("Range");
 
-function applyfilter() {
-    let filtered = [...data2];
+  function applyfilter() {
+    if (!Array.isArray(data2)) return;
 
-    // price
+    let filtered = [...data2];   // ❗ NEVER fetch here
+
     const max = Number(range.value);
     filtered = filtered.filter(b => b.price <= max);
 
-    // availability
     if (cd4.checked) {
         filtered = filtered.filter(b => !b.Rented && !b.bought);
     }
 
-    // sorting
     if (cd1.checked && !cd2.checked) {
         filtered.sort((a, b) => a.price - b.price);
     }
@@ -130,6 +129,7 @@ function applyfilter() {
 
     fetchBooks(filtered);
 }
+
 
 // make price sort exclusive
 cd1.addEventListener("change", () => cd2.checked = false);
