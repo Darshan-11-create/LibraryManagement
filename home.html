@@ -85,6 +85,7 @@ function hideCenterLoading() {
         connectSocket(book => {
             handleBookMessage(book)
         })
+        const container = document.getElementById("container");
 
         async function handleBookMessage(msg) {
             const action = msg.action;
