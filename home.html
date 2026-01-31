@@ -271,7 +271,7 @@ function hideCenterLoading() {
 
         async function applyfilter() {
             console.log(data2)
-            let sorted = data2;
+            let sorted = [...data2];
             if (sorted.length === 0) {
                 showSkeletonLoading();
                 sorted = await fetchData();
