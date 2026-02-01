@@ -88,7 +88,7 @@
                 const userpresent = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/CustomerDetails?name=${name}`);
                 let da = await userpresent.json();
                 hideLoader();
-                
+                console.log(da);
                 // If da is NOT null/empty, user exists
                 if (da) {
                     alert("User already present");
