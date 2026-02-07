@@ -90,13 +90,21 @@ function hideCenterLoading() {
              }
             if(action==="Rent"){
                availEl.innerText="Taken For Rent";
-                 const res=await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`);
+                 const res=await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
                  book=await res.json();
                  frontEndHandler(book);
             }
              else if(action==="Bought"){
                  availEl.innerText="Already Bought"
-                  const res=await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`);
+                  const res=await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
                  book=await res.json();
                  frontEndHandler(book);
                 }
@@ -104,7 +112,11 @@ function hideCenterLoading() {
                    availEl.innerText="Available"
               }
               else if(action==="NewBook"){
-                const res=await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`);
+                const res=await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
                 let data=await res.json();
                 frontEndHandler(data)
               }
@@ -114,7 +126,11 @@ function hideCenterLoading() {
             async function deleteBook(item){
                try{
                 showCenterLoading();
-                const response = await fetch("https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks");
+                const response = await fetch("https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks", {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
             data1 = await response.json();
                }finally{
                 hideCenterLoading();
@@ -134,7 +150,11 @@ function hideCenterLoading() {
             }
         }
         async function name() {
-            const response = await fetch("https://librarymanagementbackend-d5pk.onrender.com/manager/AllCustomers");
+            const response = await fetch("https://librarymanagementbackend-d5pk.onrender.com/manager/AllCustomers", {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
             data1 = await response.json();
             console.log(data1);
             customer.innerHTML = ""
@@ -150,7 +170,11 @@ function hideCenterLoading() {
                     frontEndHandler(data1)
                 else {
                     const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchCustomerById?id=${e.target.value}`
-                    const res = await fetch(url);
+                    const res = await fetch(url, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
                     if (res.ok) {
                         let data = await res.text();
                         if (!data) { return }
@@ -168,7 +192,11 @@ function hideCenterLoading() {
                     frontEndHandler1(data1)
                 else {
                     const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchCustomer?name=${e.target.value}`
-                    const res = await fetch(url);
+                    const res = await fetch(url, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
                     let data = await res.json();
                     frontEndHandler1(data)
                 }
@@ -227,7 +255,11 @@ function hideCenterLoading() {
         document.getElementById("books").addEventListener("click", async () => {
             try{
               showCenterLoading();
-                const response = await fetch("https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks");
+                const response = await fetch("https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks", {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
             data1 = await response.json();
             }
             finally{
@@ -250,7 +282,11 @@ function hideCenterLoading() {
                     try{
                         // showCenterLoading();
                     const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchBookById?id=${e.target.value}`
-                    const res = await fetch(url);
+                    const res = await fetch(url, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
                     }
                     finally{
                         // hideCenterLoading();
@@ -271,7 +307,11 @@ function hideCenterLoading() {
                     frontEndHandler(data1)
                 else {
                     const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchBooks?name=${e.target.value}`
-                    const res = await fetch(url);
+                    const res = await fetch(url, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
                     let data = await res.json();
                     frontEndHandler(data)
                 }
@@ -296,7 +336,11 @@ function hideCenterLoading() {
                     try{
                         showCenterLoading();
                     const res = await fetch(url, {
-                        method: "POST"
+                        method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            
                     })
                     alert("Book Removed Successfully")
                 }
@@ -310,6 +354,11 @@ function hideCenterLoading() {
                     const link = `https://librarymanagementbackend-d5pk.onrender.com/manager/ReturnedRentBook?id=${id}`;
                     const res = await fetch(link, {
                         method: "POST"
+                        , 
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            
                     })
                     const da=await res.json();
                     console.log(id+" "+da)
@@ -372,6 +421,11 @@ function hideCenterLoading() {
                     showCenterLoading();
                 const res = await fetch(url, {
                     method: "POST"
+                    , 
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            
                 })
                 alert("Customer removed successfully")
             }
@@ -382,7 +436,11 @@ function hideCenterLoading() {
             else {
                 try{
                     showCenterLoading();
-                const res = await fetch(url);
+                const res = await fetch(url, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
                 const data = await res.json();
                 //  finally{
               hideCenterLoading();
@@ -440,7 +498,7 @@ function hideCenterLoading() {
                     showCenterLoading();
                 const res = await fetch("https://librarymanagementbackend-d5pk.onrender.com/manager/AddBook", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { "Content-Type": "application/json" ,"Authorization": `Bearer ${token}`},
                     body: JSON.stringify(data1)
                 });
                 const d = await res.json();
@@ -465,7 +523,12 @@ function hideCenterLoading() {
             `
             document.getElementById("searchid").addEventListener("keyup", async (e) => {
                 const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchBookById?id=${e.target.value}`
-                const res = await fetch(url)
+                const res = await fetch(url,{
+                     headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            }
+                )
                 let data = await res.text();
                 if (data) {
                     data = JSON.parse(data)
@@ -475,7 +538,11 @@ function hideCenterLoading() {
             })
             document.getElementById("searchname").addEventListener("keyup", async (e) => {
                 const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchBooks?name=${e.target.value}`
-                const res = await fetch(url)
+                const res = await fetch(url,{
+                     headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
                 if (!res.ok)
                     return
                 let data = await res.text();
@@ -485,7 +552,11 @@ function hideCenterLoading() {
                     frontEndHandler(data);
                 }
             })
-            const res = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`)
+            const res = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`,{
+                     headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
             let data = await res.json();
             data = data.filter(b => b.Rented)
             frontEndHandler(data);
@@ -498,7 +569,11 @@ function hideCenterLoading() {
             `
             document.getElementById("searchid").addEventListener("keyup", async (e) => {
                 const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchBookById?id=${e.target.value}`
-                const res = await fetch(url)
+                const res = await fetch(url,{
+                     headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
                 let data = await res.text();
                 if (data) {
                     data = JSON.parse(data)
@@ -508,7 +583,11 @@ function hideCenterLoading() {
             })
             document.getElementById("searchname").addEventListener("keyup", async (e) => {
                 const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchBooks?name=${e.target.value}`
-                const res = await fetch(url)
+                const res = await fetch(url,{
+                     headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
                 let data = await res.text();
                 if (data) {
                     data = JSON.parse(data)
@@ -516,13 +595,21 @@ function hideCenterLoading() {
                     frontEndHandler(data);
                 }
               else{
-                 const res = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`)
+                 const res = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`,{
+                     headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
             let data = await res.json();
             data = data.filter(b => b.bought)
             frontEndHandler(data);
               }  
             })
-             const res = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`)
+             const res = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`,{
+                     headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
             let data = await res.json();
             data = data.filter(b => b.bought)
             frontEndHandler(data);
