@@ -170,7 +170,7 @@ function hideCenterLoading() {
                     const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchCustomer?name=${e.target.value}`
                     const res = await fetch(url);
                     let data = await res.json();
-                    frontEndHandler(data)
+                    frontEndHandler1(data)
                 }
             })
             d.innerHTML = ""
@@ -406,7 +406,7 @@ function hideCenterLoading() {
                 })
                 }
                 finally{
-                    
+
                 }
             }
         })
@@ -515,12 +515,14 @@ function hideCenterLoading() {
                     data = [data];
                     frontEndHandler(data);
                 }
-                
-            })
-            const res = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`)
+              else{
+                 const res = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`)
             let data = await res.json();
             data = data.filter(b => b.bought)
             frontEndHandler(data);
+              }  
+            })
+           
         })
     </script>
     
