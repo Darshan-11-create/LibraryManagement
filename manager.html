@@ -522,7 +522,10 @@ function hideCenterLoading() {
             frontEndHandler(data);
               }  
             })
-           
+             const res = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/AllBooks`)
+            let data = await res.json();
+            data = data.filter(b => b.bought)
+            frontEndHandler(data);
         })
     </script>
     
