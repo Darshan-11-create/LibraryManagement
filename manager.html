@@ -384,10 +384,9 @@ function hideCenterLoading() {
                     showCenterLoading();
                 const res = await fetch(url);
                 const data = await res.json();
-                }
-                finally{
+                //  finally{
               hideCenterLoading();
-                }
+                // }
                 customer.innerHTML = ""
                 document.getElementById("manage").innerHTML = ""
                 d.innerHTML = "";
@@ -405,6 +404,10 @@ function hideCenterLoading() {
                 document.getElementById("back").addEventListener("click", () => {
                     window.location.href = "manager.html"
                 })
+                }
+                finally{
+                    
+                }
             }
         })
         document.getElementById("add").addEventListener("click", async (e) => {
