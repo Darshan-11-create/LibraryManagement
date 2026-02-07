@@ -610,9 +610,16 @@ function hideCenterLoading() {
                     "Authorization": `Bearer ${token}`
                 }
             })
-            let data = await res.json();
+            try{
+           showCenterLoading();
+                let data = await res.json();
             data = data.filter(b => b.bought)
             frontEndHandler(data);
+            
+           }
+            finally{
+           hideCenterLoading();
+            }
         })
     </script>
     
