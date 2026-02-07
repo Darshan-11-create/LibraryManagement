@@ -567,6 +567,16 @@ function hideCenterLoading() {
             <input type="number" id="searchid" placeholder="Search Book By Id">
             <input type="text" id="searchname" placeholder="Search Book By Name">
             `
+             try{
+           showCenterLoading();
+                let data = await res.json();
+            data = data.filter(b => b.bought)
+            frontEndHandler(data);
+            
+           }
+            finally{
+           hideCenterLoading();
+            }
             document.getElementById("searchid").addEventListener("keyup", async (e) => {
                 const url = `https://librarymanagementbackend-d5pk.onrender.com/manager/SearchBookById?id=${e.target.value}`
                 const res = await fetch(url,{
@@ -610,16 +620,6 @@ function hideCenterLoading() {
                     "Authorization": `Bearer ${token}`
                 }
             })
-            try{
-           showCenterLoading();
-                let data = await res.json();
-            data = data.filter(b => b.bought)
-            frontEndHandler(data);
-            
-           }
-            finally{
-           hideCenterLoading();
-            }
         })
     </script>
     
