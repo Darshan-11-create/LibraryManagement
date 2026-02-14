@@ -112,7 +112,6 @@ function hideCenterLoading() {
             }
             else if (action === "NewBook") {
                 let data = await fetchData();
-                console.log(data)
                 fetchBooks(data);
             }
             else
@@ -143,7 +142,6 @@ function hideCenterLoading() {
                 const data1 = await response.json();
                 container.innerHTML = ""
                 data2 = data1;
-                console.log(data2);
                 applyfilter();
             } catch (error) {
                 console.error('Search error:', error);
@@ -169,12 +167,11 @@ function hideCenterLoading() {
                 })
                 custdata = await res.json();
                 const pro = document.getElementById("userpro");
-                console.log(custdata)
                 cust_id = custdata.id;
                 const data1 = await fetchData();
                 fetchBooks(data1);
             } catch (error) {
-                console.error('Error fetching customer details:', error);
+              
                 alert('Error loading data. Please refresh the page.');
             } finally {
               hideCenterLoading();
@@ -237,7 +234,6 @@ function hideCenterLoading() {
                 else
                     alert("Book has been rented");
             } catch (error) {
-                console.error('Error:', error);
                 alert('Something went wrong. Please try again.');
             } finally {
     hideCenterLoading(); // stop rotation
@@ -251,7 +247,7 @@ function hideCenterLoading() {
                 const data = await response.json();
                 return data;
             } catch (error) {
-                console.error('Error fetching books:', error);
+               
                 return [];
             }
         }
@@ -262,7 +258,7 @@ function hideCenterLoading() {
         const range = document.getElementById("Range");
 
         async function applyfilter() {
-            console.log(data2)
+          
             let sorted = data2;
             if (sorted.length === 0) {
                 showSkeletonLoading();
