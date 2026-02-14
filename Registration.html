@@ -96,7 +96,7 @@
                 }
             } catch (error) {
                 hideLoader();
-                console.error("Error checking user:", error);
+                
                 alert("Error checking user existence");
                 return;
             }
@@ -132,7 +132,6 @@
                 }
             } catch (error) {
                 hideLoader();
-                console.error("Error sending OTP:", error);
                 alert("Error sending OTP");
             }
         });
@@ -189,7 +188,6 @@
                 }
             } catch (err) {
                 hideLoader();
-                console.error("Error during OTP validation or registration:", err);
                 alert("An error occurred. Please try again.");
             }
         }
