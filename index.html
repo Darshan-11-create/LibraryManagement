@@ -78,7 +78,7 @@
       let data = await response.json();
       if (data === null)
         container.innerHTML = "Sorry we ran out of stock";
-      data=data.sort((a,b)=>a.Rented-b.Rented)
+      data=data.sort((a,b)=>b.bought-a.bought)
       data.forEach(item => {
         let st = item.Rented ? "Not Available" : item.bought ? "Not Availabe" : "Available";
         const price = "cost:-  " + item.price
