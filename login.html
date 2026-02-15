@@ -22,6 +22,7 @@
                 e.preventDefault();
                 const username = document.getElementById("name").value;
                 const password = document.getElementById("password").value;
+                try{
                 const response = await fetch("https://librarymanagementbackend-d5pk.onrender.com/login", {
                     method: "POST",
                     headers: {
@@ -36,6 +37,10 @@
                     console.log(token1.token);
                     localStorage.setItem("name", username);
                 }
+                }
+             catch(error){
+                 alert("Enter valid username or password")
+             }
             }
         )
     </script>
