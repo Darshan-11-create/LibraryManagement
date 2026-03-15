@@ -9,6 +9,8 @@ The frontend of the Library Management System built with HTML, CSS, and JavaScri
 - 🔐 User Login & Registration
 - 🏠 Home dashboard for library overview
 - 📖 Search books by title, author, or category
+- 🔄 Borrow books and track due dates
+- 🛒 Purchase books online
 - 👤 User profile management
 - 🛠️ Manager panel for admin operations
 
