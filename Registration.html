@@ -85,7 +85,7 @@
             // Check if user already exists
             showLoader("Checking user...");
             try {
-                const userpresent = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/manager/CustomerDetails?name=${name}`);
+                const userpresent = await fetch(`https://librarymanagementbackend-d5pk.onrender.com/CustomerDetails?name=${name}`);
                 let da = await userpresent.json();
                 hideLoader();
                 console.log(da);
